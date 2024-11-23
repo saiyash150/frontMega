@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import NoteList from './components/NoteList';
+import NoteForm from './components/NoteForm';
+import SearchBar from './components/SearchBar';
+import "./styles/styles.css"
 
-function App() {
+
+const App = () => {
+  const [notes, setNotes] = useState([]);
+  const [search, setSearch] = useState('');
+
+  const fetchNotes = async () => {
+    try {
+      const { data } = await axios.get('https://megadrive-1.onrender.com/api/notes', {
+        params: { search },
+      });
+      setNotes(data);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotes();
+  }, [search]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      <h1>Notes App</h1>
+      <SearchBar search={search} setSearch={setSearch} />
+      <NoteForm fetchNotes={fetchNotes} />
+      <NoteList notes={notes} fetchNotes={fetchNotes} />
     </div>
   );
-}
+};
 
 export default App;
